@@ -1,7 +1,7 @@
 import opc
 import time
 import random
-#from noise import pnoise1
+from pnoise import raw_noise_2d
 
 class GradientAnimation():
 
@@ -14,6 +14,9 @@ class GradientAnimation():
                 self.pixels = []
                 for LED in range(self.nLEDs):
                         self.pixels.append(Pixel())
+
+                for pix in self.pixels:
+                        pix.addNoise(0.1,0.01)
 
         def setColour(self, c, noise=0.0):
                 # Change the colour of all the pixels with a temporal noise
@@ -46,6 +49,9 @@ class Pixel():
                 self.dt = 0.0
                 self.state = Pixel.stateStatic
                 self.time = time.time()
+                self.noiseFreq = 0
+                self.noiseOffset = 0
+                self.noise = False
 
         def setC(self, newC, dt=0.0):
                 self.origC = self.c
@@ -72,10 +78,19 @@ class Pixel():
                                 self.c[2] = int(blendFraction*self.origC[2] + (1 - blendFraction)*self.targetC[2])
 
                         else:
+                                self.origC = self.c
                                 self.state = Pixel.stateStatic
+                
+                if self.noise:
+                        self.c[0] = int(self.origC[0]*(1 + self.noiseAmp*raw_noise_2d(0,self.noiseOffset + self.time*self.noiseFreq)))
+                        self.c[1] = int(self.origC[1]*(1 + self.noiseAmp*raw_noise_2d(100,self.noiseOffset + self.time*self.noiseFreq)))
+                        self.c[2] = int(self.origC[2]*(1 + self.noiseAmp*raw_noise_2d(200,self.noiseOffset + self.time*self.noiseFreq)))
 
-        def addNoise(self):
-                pass
+        def addNoise(self,noiseFreq, noiseAmp):
+                self.noiseFreq = noiseFreq
+                self.noiseOffset = 1000*random.random()
+                self.noiseAmp = noiseAmp
+                self.noise = True
 
 if __name__ == '__main__':
         
@@ -95,4 +110,4 @@ if __name__ == '__main__':
                         # Change the colours of the pixels (over the course of 1s)
                         anim.setColour([random.randint(0,100),
                                                         random.randint(0,100),
-                                                        random.randint(0,100)],noise=20.0)
+                                                        random.randint(0,100)],noise=5.0)
