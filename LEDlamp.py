@@ -3,10 +3,13 @@ import time
 import random
 from pnoise import raw_noise_2d
 
-class GradientAnimation():
+class ColourAnimation():
+        """ Class to handle animation of a single colour for all LEDs,
+        and animation between colours
+        """
 
         def __init__(self, nLEDs):
-                
+                """ Create the list of Pixel objects """
                 # Specify the number of leds
                 self.nLEDs = nLEDs
 
@@ -15,21 +18,26 @@ class GradientAnimation():
                 for LED in range(self.nLEDs):
                         self.pixels.append(Pixel())
 
+        def setNoise(self, noiseFreq, noiseAmp):
+                """ Add Perlin noise to the pixels """
                 for pix in self.pixels:
                         pix.setNoise(0.5,0.1)
 
         def setColour(self, c, noise=0.0):
-                # Change the colour of all the pixels with a temporal noise
+                """ Change the colour of all the pixels to a target colour
+                Noise defines the time in seconds over which the transition can occur
+                """
                 print('Setting colours to ' + str(c))
                 for pix in self.pixels:
                         pix.setC(c, noise*random.random())
 
         def update(self, dt):
+                """ Update all the pixels objects """
                 for pix in self.pixels:
                         pix.update(dt)
 
         def render(self):
-
+                """ Get and return the colour for each pixel"""
                 colours = []
                 for pix in self.pixels:
                         colours.append(pix.getColour())
@@ -37,43 +45,51 @@ class GradientAnimation():
                 return colours
 
 class Pixel():
+        """ Class to handle the behaviour of a single pixel"""
 
-        stateStatic = 0
-        stateChanging = 1
+        # Static state variables
+        STATE_STATIC = 0
+        STATE_CHANGING = 1
 
         def __init__(self):
-
-                # Set the default colour to black
-                self.c = [0,0,0]
-                self.targetC = [0,0,0]  # When interpolating
-                self.origC = [0,0,0]    # When interpolating
-                self.dt = 0.0           # Interpolation time
-                self.state = Pixel.stateStatic
-                self.time = time.time()
-                self.noiseFreq = 0
-                self.noiseOffset = 0
-                self.noise = False      # If we should apply colour noise
+                """ Initialise the pixel to off """
+                self.c = [0,0,0]                # Current colour
+                self.targetC = [0,0,0]          # Target colour when interpolating
+                self.origC = [0,0,0]            # Record of original colour when interpolating
+                self.dt = 0.0                   # Interpolation time
+                self.state = Pixel.STATE_STATIC # Current state of the pixel
+                self.time = time.time()         # Pixel internal clock
+                self.noiseFreq = 0              # Frequency of Perlin noise
+                self.noiseOffset = 0            # Offset of Perlin noise
+                self.noise = False              # If we should apply colour noise
 
         def setC(self, newC, dt=0.0):
+                """ Method to change the colour of the pixel 
+                to colour newC, over time dt
+                """
 
                 if dt>0:
-                        self.origC = self.c[:]
-                        self.targetC = newC[:]
-                        self.timeStart = self.time # Time at which c change starts
-                        self.timeEnd = self.time + dt # Time at which c change ends 
-                        self.state = Pixel.stateChanging
+                        self.origC = self.c[:]                  # Record the original colour
+                        self.targetC = newC[:]                  # Set the target
+                        self.timeStart = self.time              # Time at which colour change starts
+                        self.timeEnd = self.time + dt           # Time at which colour change ends 
+                        self.state = Pixel.STATE_CHANGING       # Change state
                 else:
                         self.c = newC[:]
 
         def update(self, dt):
+                """ Update the Pixel"""
+
+                # Increment the internal clock
                 self.time += dt
 
-                if self.state is Pixel.stateChanging:
-                        
+                if self.state is Pixel.STATE_CHANGING:
+
                         # Interpolate toward the target colour
                         timeLeft = float(self.timeEnd - self.time)
                         totalTime = float(self.timeEnd - self.timeStart)
                         
+                        # Check how much time is left in the interpolation
                         if timeLeft > 0 and totalTime != 0:
                                 blendFraction = timeLeft/totalTime
                         
@@ -83,11 +99,14 @@ class Pixel():
 
                         else:
                                 self.c = self.targetC[:]
-                                self.state = Pixel.stateStatic
+                                self.state = Pixel.STATE_STATIC
         
         def getColour(self):
-                # Method to get the current colour of the pixel
+                """ Returns the current colour of the pixel """
+
                 if self.noise:
+
+                        # Add Perlin noise to the current Pixel colour
                         returnC = [0,0,0]
                         returnC[0] = int(self.c[0]*(1 + self.noiseAmp*raw_noise_2d(  0, self.noiseOffset + self.time*self.noiseFreq)))
                         returnC[1] = int(self.c[1]*(1 + self.noiseAmp*raw_noise_2d(100, self.noiseOffset + self.time*self.noiseFreq)))
@@ -105,18 +124,24 @@ class Pixel():
                 return returnC
 
         def setNoise(self,noiseFreq, noiseAmp):
+                """ Enables noise on the Pixel colour """
+
                 self.noiseFreq = noiseFreq
+                # Ensure that different pixels are at different points on the noise profile
                 self.noiseOffset = 1000*random.random()
                 self.noiseAmp = noiseAmp
                 self.noise = True
 
 if __name__ == '__main__':
         
+        # Set up the opc client
         client = opc.Client('localhost:7890')
 
-        anim = GradientAnimation(60)
+        # Set up a colour animation and set an initial colour
+        anim = ColourAnimation(60)
         anim.setColour([100,50,30],0.0)
 
+        # Run the animation, and randomly change colour
         while True:
 
                 anim.update(0.1)
