@@ -1,7 +1,9 @@
 import opc
 import time
 import random
+import math
 from pnoise import raw_noise_2d
+from pnoise import raw_noise_3d
 
 class ColourAnimation():
         """ Class to handle animation of a single colour for all LEDs,
@@ -12,6 +14,8 @@ class ColourAnimation():
                 """ Create the list of Pixel objects """
                 # Specify the number of leds
                 self.nLEDs = nLEDs
+                self.dimensions = False
+                self.time = 0
 
                 # Each pixel is an object
                 self.pixels = []
@@ -21,18 +25,29 @@ class ColourAnimation():
         def setNoise(self, noiseFreq, noiseAmp):
                 """ Add Perlin noise to the pixels """
                 for pix in self.pixels:
-                        pix.setNoise(0.5,0.1)
+                        pix.setNoise(noiseFreq,noiseAmp)
 
         def setColour(self, c, noise=0.0):
                 """ Change the colour of all the pixels to a target colour
                 Noise defines the time in seconds over which the transition can occur
                 """
                 print('Setting colours to ' + str(c))
-                for pix in self.pixels:
-                        pix.setC(c, noise*random.random())
+                if self.dimensions:
+                        for idx, pix in enumerate(self.pixels):
+                                pix.setC(c, noise*(0.5 + 0.5*raw_noise_3d( self.time, 0.1*idx%self.w , 0.1*math.floor(idx/self.h) )))
+                else:
+                        for pix in self.pixels:
+                                pix.setC(c, noise*random.random())
+
+        def setDimensions(self, w, h):
+                """ Set dimension for spatially noisy transitions"""
+                self.dimensions = True
+                self.w = w
+                self.h = h
 
         def update(self, dt):
                 """ Update all the pixels objects """
+                self.time += dt
                 for pix in self.pixels:
                         pix.update(dt)
 
@@ -140,6 +155,8 @@ if __name__ == '__main__':
         # Set up a colour animation and set an initial colour
         anim = ColourAnimation(60)
         anim.setColour([100,50,30],0.0)
+        anim.setDimensions(15,4)
+        anim.setNoise(1, 0.05)
 
         # Run the animation, and randomly change colour
         while True:
@@ -149,8 +166,8 @@ if __name__ == '__main__':
                 client.put_pixels(pixels)
                 time.sleep(0.1)
 
-                if random.random() < 0.05:
+                if random.random() < 0.03:
                         # Change the colours of the pixels (over the course of 1s)
                         anim.setColour([random.randint(0,100),
                                                         random.randint(0,100),
-                                                        random.randint(0,100)],noise=1.0)
+                                                        random.randint(0,100)],noise=3.0)
