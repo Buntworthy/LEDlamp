@@ -7,10 +7,13 @@ Hardware
 Powered by:
 
 * Raspberry Pi
+* Python
+* Flask
 * Fadecandy
-* 120 addressable RGB LEDs (WS2812B)
+* 60 addressable RGB LEDs (WS2812B)
 * Some wire and connectors
-* Some hard things yet to be decided on
+* Some aluminium tube
+* Something needed to diffuse the LEDs
 
 Aim
 ------
@@ -19,10 +22,12 @@ to the internet somehow and controllable over the web.
 
 Progress
 ------
-*Currently:*
+*Previously:*
 Displaying single colours (with some noise), fades between
 other colours at random intervals.
 
+*Currently:*
+One thread responsible for running LED animations (currently displaying a colour with noise, and transitions). Flask webserver runs listening for request for a page which triggers a change to a random colour. 
+
 *Next:*
-Make the colour change controllable, and introduce spatial
-correlation on delay of colour changes.
+Implement form on served webpage to specify colour in RGB.
