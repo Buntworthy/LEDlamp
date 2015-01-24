@@ -4,8 +4,15 @@
    </head>
 
    <body>
-      <h1>Hello, World!</h1>
-      <h2>The date and time on the server is: {{ time }}</h2>
-      <a href="\something">Click me</a>
+		<h1>Hello, World!</h1>
+		<h2>The date and time on the server is: {{ time }}</h2>
+		<a href="\something">Click me</a>
+		<form action="change_colour" method="POST">
+		Colour value:<br>
+		<input type="text" name="newcolour" value="00FF66">
+		<br>
+		<br><br>
+		<input type="submit" value="Submit">
+		</form>
    </body>
 </html>

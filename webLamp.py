@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 import datetime
 import threading
 import time
@@ -37,8 +37,8 @@ class ThreadClass(threading.Thread):
             try:
                 text = self.queue.get(False)
                 if len(text) > 0:
-                    #print "changing colour"
-					self.anim.setColour([random.randint(0,255),random.randint(0,255),random.randint(0,255)],noise=3.0)
+                    print text
+                    self.anim.setColour(text,noise=3.0)
             except:
                 pass
 
@@ -69,6 +69,19 @@ def create_app():
 		  }
 		return render_template('main.html', **templateData)
 
+	@app.route('/change_colour', methods=['POST'])
+	def handle_data():
+		cHex = request.form['newcolour']
+		cInt = [int(cHex[0:2],16),
+					int(cHex[2:4],16),
+					int(cHex[4:6],16)]
+		queue.put(cInt)
+		templateData = {
+		  'title' : 'HELLO!',
+		  'time': 'wut?'
+		  }
+		return render_template('main.html', **templateData)
+		
 	return app
 
 if __name__ == "__main__":
