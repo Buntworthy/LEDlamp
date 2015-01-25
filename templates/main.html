@@ -1,18 +1,64 @@
 <!DOCTYPE html>
    <head>
-      <title>{{ title }}</title>
+      <title>LED lamp</title>
+      <meta name=viewport content="width=device-width, initial-scale=1">
+      <style>
+
+		body {
+		    background-color: #EEE;
+		}
+
+		#container {
+			
+			background-color: #FFF;
+			width: 90%;
+		    max-width: 500px;
+		    margin: auto;
+		    padding: 15px;
+		    padding-bottom: 25px;
+		}
+
+		h1 {
+		    font-family: sans-serif;
+			text-align: center;
+			padding-top: 10px;
+			padding-bottom: 10px;
+			margin: auto;
+		}
+
+		p {
+			color: #000055;
+			font-size: 22px;
+		}
+
+		p#time {
+			color: #666688;
+			font-size: 16px;
+			font-style: italic;
+		}
+
+		input[type="text"], input[type="submit"]{
+			padding: 5px;
+			width: 80px;
+		}
+
+
+		</style>
+
    </head>
 
-   <body>
-		<h1>Hello, World!</h1>
-		<h2>The date and time on the server is: {{ time }}</h2>
-		<a href="\something">Click me</a>
-		<form action="change_colour" method="POST">
-		Colour value:<br>
-		<input type="text" name="newcolour" value="00FF66">
-		<br>
-		<br><br>
-		<input type="submit" value="Submit">
-		</form>
+	<body>
+		<div id="container">
+			<h1>Welcome to the lamp!</h1>
+			<p id="time">It is currently {{ time }}
+
+			<p>Set the colour of the lamp (use a hex value)
+			<!-- Form to send new hex value to lamp -->
+			<form action="change_colour" method="POST">
+				<p>New colour:
+				<input type="text" name="newcolour" placeholder="000000">
+				<input type="submit" value="Submit">
+			</form>
+		</div>
    </body>
 </html>

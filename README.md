@@ -22,12 +22,15 @@ to the internet somehow and controllable over the web.
 
 Progress
 ------
-*Previously:*
-Displaying single colours (with some noise), fades between
-other colours at random intervals.
 
 *Currently:*
-One thread responsible for running LED animations (currently displaying a colour with noise, and transitions). Flask webserver runs listening for request for a page which triggers a change to a random colour. 
+Form input into Flask served page sets colour of LED strip
 
 *Next:*
-Implement form on served webpage to specify colour in RGB.
+???
+
+*Previously:*
+* Displaying single colours (with some noise), fades between
+other colours at random intervals.
+
+* One thread responsible for running LED animations (currently displaying a colour with noise, and transitions). Flask webserver runs listening for request for a page which triggers a change to a random colour. 

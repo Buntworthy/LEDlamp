@@ -51,21 +51,9 @@ def create_app():
 	@app.route("/")
 	def hello():
 		now = datetime.datetime.now()
-		timeString = now.strftime("%Y-%m-%d %H:%M")
+		timeString = now.strftime("%Y-%m-%d %H:%M:%S")
 		templateData = {
-		  'title' : 'HELLO!',
 		  'time': timeString
-		  }
-		return render_template('main.html', **templateData)
-
-
-	@app.route("/something/")
-	def something():
-		queue.put('message!')
-		print('I sent a message\n')
-		templateData = {
-		  'title' : 'HELLO!',
-		  'time': 'wut?'
 		  }
 		return render_template('main.html', **templateData)
 
@@ -76,9 +64,10 @@ def create_app():
 					int(cHex[2:4],16),
 					int(cHex[4:6],16)]
 		queue.put(cInt)
+		now = datetime.datetime.now()
+		timeString = now.strftime("%Y-%m-%d %H:%M:%S")
 		templateData = {
-		  'title' : 'HELLO!',
-		  'time': 'wut?'
+		  'time': timeString
 		  }
 		return render_template('main.html', **templateData)
 		
